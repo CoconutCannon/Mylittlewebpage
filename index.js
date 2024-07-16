@@ -1,9 +1,9 @@
 import express from 'express'
-const app = express()
+var app = express()
 
 import cors from 'cors';
 app.use(cors());
-
+app.use(express.json())
 
 let notes = [
   { 
@@ -27,6 +27,13 @@ let notes = [
     "number": "39-23-6423122"
   }
 ]
+
+const generateId = () => {
+  const maxId = notes.length > 0
+    ? Math.max(...notes.map(n => Number(n.id)))
+    : 0
+  return String(maxId + 1)
+}
 
 app.get('/api/persons', (request, response) => {
   response.json(notes)
@@ -54,6 +61,33 @@ app.delete('/api/persons/:id', (request, response) => {
   notes = notes.filter(note => note.id !== id)
 
   response.status(204).end()
+})
+
+app.post('/api/persons', express.urlencoded({extended: true}), (request, response) => {
+  const body = request.body
+  const names = notes.map((value) => value.name)
+
+  if (!body.name || !body.number) {
+    return response.status(418).json({ 
+      error: 'Please, my friend, write sum in here would ya' 
+    })
+  }
+
+  if (names.includes(body.name)) {
+    return response.status(400).json({ 
+      error: '!' 
+    })
+  }
+
+  const note = {
+    id: generateId(),
+    name: body.name,
+    number: body.number,
+  }
+
+  notes = notes.concat(note)
+
+  response.json(note)
 })
 
 const PORT = process.env.PORT || 3001
