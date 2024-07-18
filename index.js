@@ -14,13 +14,13 @@ const generateId = () => {
   return String(maxId + 1)
 }
 
-app.get('/', (request, response) => {
+app.get('/api/persons', (request, response) => {
   Note.find({}).then(notes => {
     response.json(notes)
   })
 })
 
-app.get('/:id', (request, response) => {
+app.get('/api/notes/:id', (request, response) => {
   Note.findById(request.params.id).then(info => {
     response.json(info)
   })
@@ -32,14 +32,14 @@ app.get('/info', (request, response) => {
     response.send(`<p>${info}<br> ${date}</p>`)
   })
 
-app.delete('/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
   notes = notes.filter(note => note.id !== id)
 
   response.status(204).end()
 })
 
-app.post('/', express.urlencoded({ extended: true }) , (request, response) => {
+app.post('/api/persons', express.urlencoded({ extended: true }) , (request, response) => {
   const body = request.body
   // const names = Note.map(info => info.name)
 
