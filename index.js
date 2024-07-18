@@ -2,6 +2,7 @@ require("dotenv").config()
 const express = require('express')
 const Note = require('./models/note')
 const app = express()
+app.use(express.static('dist'))
 const bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({ extended: false }));
