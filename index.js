@@ -8,8 +8,8 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-const generateId = () => {
-  const maxId = Object.keys(Note).length > 0
+const generateId = async () => {
+  const maxId = await Note.countDocuments() > 0
     ? Object.keys(Note).length
     : 0
   return String(maxId + 1)
@@ -21,7 +21,7 @@ app.get('/api/persons', (request, response) => {
   })
 })
 
-app.get('/api/notes/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response) => {
   Note.findById(request.params.id).then(info => {
     response.json(info)
   })
@@ -33,11 +33,12 @@ app.get('/info', (request, response) => {
     response.send(`<p>${info}<br> ${date}</p>`)
   })
 
-app.delete('/api/persons/:id', (request, response) => {
-  const id = request.params.id
-  notes = notes.filter(note => note.id !== id)
-
-  response.status(204).end()
+app.delete('/api/persons/:id', (request, response, next) => {
+  Note.findByIdAndDelete(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
 app.post('/api/persons', express.urlencoded({ extended: true }) , (request, response) => {
