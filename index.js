@@ -8,14 +8,7 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-const generateId = async () => {
-  const maxId = await Note.countDocuments() > 0
-    ? Object.keys(Note).length
-    : 0
-  return String(maxId + 1)
-}
-
-app.get('/api/persons', (request, response) => {
+app.get('/api/persons', async (request, response) => {
   Note.find({}).then(notes => {
     response.json(notes)
   })
@@ -41,9 +34,14 @@ app.delete('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.post('/api/persons', express.urlencoded({ extended: true }) , (request, response) => {
+app.post('/api/persons', express.urlencoded({ extended: true }) , async (request, response) => {
   const body = request.body
+  const number = await Note.countDocuments({})
   // const names = Note.map(info => info.name)
+
+  const maxId = parseInt(number) > 0
+    ? parseInt(number)
+    : 0
 
   if (body.name === undefined || body.number === undefined) {
     return response.status(400).json({ error: request.body.name })
@@ -55,7 +53,7 @@ app.post('/api/persons', express.urlencoded({ extended: true }) , (request, resp
   const info = new Note({
     name: body.name,
     number: body.number,
-    id: generateId(),
+    id: maxId + 1,
   })
 
   info.save().then(savedName => {

@@ -4,8 +4,10 @@ POST http://localhost:3001/api/persons HTTP/1.1
 content-type: application/json
 
 {
-    "name": "We are",
-    "number": "What we overcome"
+    "name": "Anna",
+    "number": "0401234556"
 }
+
 ###
-DELETE http://https://mylittlewebpage.onrender.com/api/persons/18
+# DELETE https://mylittlewebpage.onrender.com/api/persons/66991985891b3f332d4e2325
+DELETE http://localhost:3001/api/persons/6
