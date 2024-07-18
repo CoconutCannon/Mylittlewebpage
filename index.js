@@ -1,6 +1,6 @@
 require("dotenv").config()
 const express = require('express')
-const mongoose = require('mongoose')
+const Note = require('./models/note')
 const app = express()
 const bodyParser = require('body-parser');
 
@@ -14,33 +14,13 @@ const generateId = () => {
   return String(maxId + 1)
 }
 
-const url = process.env.MONGODB_URL;
-mongoose.set('strictQuery',false)
-mongoose.connect(url)
-
-const noteSchema = new mongoose.Schema({
-  id: String,
-  name: String,
-  number: String,
-})
-
-noteSchema.set('toJSON', {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString()
-    delete returnedObject._id
-    delete returnedObject.__v
-  }
-})
-
-const Note = mongoose.model('Note', noteSchema)
-
-app.get('/api/persons', (request, response) => {
+app.get('/', (request, response) => {
   Note.find({}).then(notes => {
     response.json(notes)
   })
 })
 
-app.get('/api/notes/:id', (request, response) => {
+app.get('/:id', (request, response) => {
   Note.findById(request.params.id).then(info => {
     response.json(info)
   })
@@ -52,14 +32,14 @@ app.get('/info', (request, response) => {
     response.send(`<p>${info}<br> ${date}</p>`)
   })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/:id', (request, response) => {
   const id = request.params.id
   notes = notes.filter(note => note.id !== id)
 
   response.status(204).end()
 })
 
-app.post('/api/persons', express.urlencoded({ extended: true }) , (request, response) => {
+app.post('/', express.urlencoded({ extended: true }) , (request, response) => {
   const body = request.body
   // const names = Note.map(info => info.name)
 
