@@ -20,9 +20,10 @@ app.get('/api/persons/:id', (request, response) => {
   })
 })
 
-app.get('/info', (request, response) => {
+app.get('/info', async (request, response) => {
+    const number = await Note.countDocuments({})
     const date = new Date()
-    const info = `Phonebook has info for ${notes.length} people`
+    const info = `Phonebook has info for ${number} people`
     response.send(`<p>${info}<br> ${date}</p>`)
   })
 
