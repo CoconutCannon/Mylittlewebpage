@@ -1,54 +1,49 @@
-import express from 'express'
-var app = express()
+require("dotenv").config()
+const express = require('express')
+const mongoose = require('mongoose')
+const app = express()
+const bodyParser = require('body-parser');
 
-import cors from 'cors';
-app.use(cors());
-app.use(express.json())
-app.use(express.static('dist'))
-
-let notes = [
-  { 
-    "id": "1",
-    "name": "Arto Hellas", 
-    "number": "040-123456"
-  },
-  { 
-    "id": "2",
-    "name": "Ada Lovelace", 
-    "number": "39-44-5323523"
-  },
-  { 
-    "id": "3",
-    "name": "Dan Abramov", 
-    "number": "12-43-234345"
-  },
-  { 
-    "id": "4",
-    "name": "Mary Poppendieck", 
-    "number": "39-23-6423122"
-  }
-]
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 const generateId = () => {
-  const maxId = notes.length > 0
-    ? Math.max(...notes.map(n => Number(n.id)))
+  const maxId = Object.keys(Note).length > 0
+    ? Object.keys(Note).length
     : 0
   return String(maxId + 1)
 }
 
-app.get('/api/persons', (request, response) => {
-  response.json(notes)
+const url = process.env.MONGODB_URL;
+mongoose.set('strictQuery',false)
+mongoose.connect(url)
+
+const noteSchema = new mongoose.Schema({
+  id: String,
+  name: String,
+  number: String,
 })
 
-app.get('/api/persons/:id', (request, response) => {
-  const id = request.params.id
-  const note = notes.find(note => note.id === id)
-  if (note) {
-    response.json(note)
-  } else {
-    response.statusMessage = "Skidibi sigma rizz sigma mewing";
-    response.status(404).end()
+noteSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
   }
+})
+
+const Note = mongoose.model('Note', noteSchema)
+
+app.get('/api/persons', (request, response) => {
+  Note.find({}).then(notes => {
+    response.json(notes)
+  })
+})
+
+app.get('/api/notes/:id', (request, response) => {
+  Note.findById(request.params.id).then(info => {
+    response.json(info)
+  })
 })
 
 app.get('/info', (request, response) => {
@@ -64,34 +59,29 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end()
 })
 
-app.post('/api/persons', express.urlencoded({extended: true}), (request, response) => {
+app.post('/api/persons', express.urlencoded({ extended: true }) , (request, response) => {
   const body = request.body
-  const names = notes.map((value) => value.name)
+  // const names = Note.map(info => info.name)
 
-  if (!body.name || !body.number) {
-    return response.status(418).json({ 
-      error: 'Please, my friend, write sum in here would ya' 
-    })
+  if (body.name === undefined || body.number === undefined) {
+    return response.status(400).json({ error: request.body.name })
   }
+  // if (names.includes(body.name)){
+  //   return response.status(418).json({ error: "I am not a teapot 😆"})
+  // }
 
-  if (names.includes(body.name)) {
-    return response.status(400).json({ 
-      error: '!' 
-    })
-  }
-
-  const note = {
-    id: generateId(),
+  const info = new Note({
     name: body.name,
     number: body.number,
-  }
+    id: generateId(),
+  })
 
-  notes = notes.concat(note)
-
-  response.json(note)
+  info.save().then(savedName => {
+    response.json(savedName)
+  })
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

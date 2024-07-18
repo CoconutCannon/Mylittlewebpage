@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "I mean it's an exercise what more do you want",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
@@ -14,8 +13,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "mongoose": "^8.5.1",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
