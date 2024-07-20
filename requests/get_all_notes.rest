@@ -11,3 +11,10 @@ content-type: application/json
 ###
 # DELETE https://mylittlewebpage.onrender.com/api/persons/66991985891b3f332d4e2325
 DELETE http://localhost:3001/api/persons/6
+###
+PUT http://localhost:3001/api/persons/669965d8a5c8069e7f5bbf1e
+content-type: application/json
+
+{
+    "number": "420noscopelmao"
+}
